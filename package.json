@@ -1,0 +1,55 @@
+{
+  "name": "ai-project-packer",
+  "version": "2.0.0",
+  "description": "Smart, extensible CLI that turns any code project into token-optimized context bundles for AI chats. Written in TypeScript.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "aipack": "./bin/aipack.js"
+  },
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "docs",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/test/*.test.js",
+    "verify": "npm run typecheck && npm test",
+    "start": "npm run build && node ./bin/aipack.js",
+    "pack": "node ./bin/aipack.js"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "context",
+    "prompt",
+    "repomix",
+    "codebase",
+    "tokenizer",
+    "cli",
+    "typescript",
+    "react"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "typescript": "^5.6.0"
+  }
+}

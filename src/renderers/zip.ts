@@ -1,7 +1,7 @@
 /**
  * Minimal, dependency-free ZIP writer.
  *
- * Why not a library? The packer's whole selling point is `npx aipack` with no
+ * Why not a library? The packer's whole selling point is `npx aibundle` with no
  * install step and no supply-chain surface. A zip with *stored* (uncompressed)
  * entries is ~120 lines and every unzip tool on earth reads it.
  *
@@ -54,8 +54,12 @@ export function crc32(buffer: Uint8Array): number {
 /** DOS date/time pair for the ZIP local header. */
 export function dosDateTime(date: Date): { time: number; date: number } {
   const year = Math.max(1980, date.getFullYear());
-  const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
-  const day = (year - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+  const time =
+    (date.getHours() << 11) |
+    (date.getMinutes() << 5) |
+    Math.floor(date.getSeconds() / 2);
+  const day =
+    ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
   return { time: time & 0xffff, date: day & 0xffff };
 }
 
@@ -68,7 +72,10 @@ const MAX_UINT32 = 0xffffffff;
  * @param options `mtime` for reproducible builds
  * @returns the archive bytes
  */
-export function renderZip(entries: readonly ZipEntry[], options: ZipOptions = {}): Buffer {
+export function renderZip(
+  entries: readonly ZipEntry[],
+  options: ZipOptions = {},
+): Buffer {
   const mtime = options.mtime ?? new Date();
   const { time, date } = dosDateTime(mtime);
 
@@ -77,12 +84,21 @@ export function renderZip(entries: readonly ZipEntry[], options: ZipOptions = {}
   let offset = 0;
 
   for (const entry of entries) {
-    const name = Buffer.from(entry.path.replace(/\\/g, '/'), 'utf8');
-    const data = typeof entry.content === 'string' ? Buffer.from(entry.content, 'utf8') : Buffer.from(entry.content);
+    const name = Buffer.from(entry.path.replace(/\\/g, "/"), "utf8");
+    const data =
+      typeof entry.content === "string"
+        ? Buffer.from(entry.content, "utf8")
+        : Buffer.from(entry.content);
     const crc = crc32(data);
 
-    if (offset > MAX_UINT32 || data.length > MAX_UINT32 || name.length > 0xffff) {
-      throw new Error(`zip64 not supported: archive too large for entry "${entry.path}"`);
+    if (
+      offset > MAX_UINT32 ||
+      data.length > MAX_UINT32 ||
+      name.length > 0xffff
+    ) {
+      throw new Error(
+        `zip64 not supported: archive too large for entry "${entry.path}"`,
+      );
     }
 
     const local = Buffer.alloc(30);
@@ -125,8 +141,14 @@ export function renderZip(entries: readonly ZipEntry[], options: ZipOptions = {}
   }
 
   const centralBuffer = Buffer.concat(centrals);
-  if (offset > MAX_UINT32 || centralBuffer.length > MAX_UINT32 || entries.length > 0xffff) {
-    throw new Error('zip64 not supported: too many entries or archive too large');
+  if (
+    offset > MAX_UINT32 ||
+    centralBuffer.length > MAX_UINT32 ||
+    entries.length > 0xffff
+  ) {
+    throw new Error(
+      "zip64 not supported: too many entries or archive too large",
+    );
   }
 
   const end = Buffer.alloc(22);
@@ -148,22 +170,28 @@ export function renderZip(entries: readonly ZipEntry[], options: ZipOptions = {}
  * Used by the test suite to prove the archive is well-formed without shelling
  * out to `unzip`.
  */
-export function readZipEntries(archive: Uint8Array): Array<{ path: string; size: number; crc: number }> {
+export function readZipEntries(
+  archive: Uint8Array,
+): Array<{ path: string; size: number; crc: number }> {
   const buffer = Buffer.from(archive);
   const eocd = buffer.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]));
-  if (eocd < 0) throw new Error('not a zip archive: no end-of-central-directory record');
+  if (eocd < 0)
+    throw new Error("not a zip archive: no end-of-central-directory record");
   const count = buffer.readUInt16LE(eocd + 10);
   let offset = buffer.readUInt32LE(eocd + 16);
 
   const out: Array<{ path: string; size: number; crc: number }> = [];
   for (let i = 0; i < count; i += 1) {
-    if (buffer.readUInt32LE(offset) !== 0x02014b50) throw new Error('corrupt central directory');
+    if (buffer.readUInt32LE(offset) !== 0x02014b50)
+      throw new Error("corrupt central directory");
     const crc = buffer.readUInt32LE(offset + 16);
     const size = buffer.readUInt32LE(offset + 24);
     const nameLength = buffer.readUInt16LE(offset + 28);
     const extraLength = buffer.readUInt16LE(offset + 30);
     const commentLength = buffer.readUInt16LE(offset + 32);
-    const path = buffer.subarray(offset + 46, offset + 46 + nameLength).toString('utf8');
+    const path = buffer
+      .subarray(offset + 46, offset + 46 + nameLength)
+      .toString("utf8");
     out.push({ path, size, crc });
     offset += 46 + nameLength + extraLength + commentLength;
   }

@@ -4,7 +4,7 @@
 src/
   types.ts              every shared interface
   core/
-    config.ts           defaults, presets, .aipackrc merge, validation
+    config.ts           defaults, presets, .aibundlerc merge, validation
     languages.ts        ~47 languages: id, comment tokens, fence hint
     gitignore.ts        gitignore-compatible ignore matching
     redactor.ts         secret redaction (shape + assignment layers)

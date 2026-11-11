@@ -1,11 +1,20 @@
 {
-  "name": "ai-project-packer",
-  "version": "2.0.0",
+  "name": "aibundle",
+  "version": "3.0.0",
   "description": "Smart, extensible CLI that turns any code project into token-optimized context bundles for AI chats. Written in TypeScript.",
   "type": "module",
   "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mberneti/aibundle.git"
+  },
+  "homepage": "https://github.com/mberneti/aibundle#readme",
+  "bugs": {
+    "url": "https://github.com/mberneti/aibundle/issues"
+  },
   "bin": {
-    "aipack": "./bin/aipack.js"
+    "aibundle": "./bin/aibundle.js"
   },
   "main": "./dist/src/index.js",
   "types": "./dist/src/index.d.ts",
@@ -28,12 +37,15 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "prepare": "npm run build",
+    "prepublishOnly": "npm run verify",
     "clean": "rm -rf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test dist/test/*.test.js",
     "verify": "npm run typecheck && npm test",
-    "start": "npm run build && node ./bin/aipack.js",
-    "pack": "node ./bin/aipack.js"
+    "start": "npm run build && node ./bin/aibundle.js",
+    "pack": "node ./bin/aibundle.js",
+    "release:dry": "node scripts/publish.mjs --dry-run",
+    "release": "node scripts/publish.mjs"
   },
   "keywords": [
     "ai",
@@ -45,8 +57,12 @@
     "tokenizer",
     "cli",
     "typescript",
-    "react"
+    "react",
+    "npx"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/node": "^22.7.0",

@@ -7,16 +7,16 @@
  *   DEFAULTS  <  preset  <  project config file  <  user config file  <  CLI flags
  * ```
  *
- * A config file is JSON (`ai-project-packer.json`, `.aipackrc.json`, or an
- * `aipack` key inside `package.json`). Unknown keys are reported as problems
+ * A config file is JSON (`ai-project-packer.json`, `.aibundlerc.json`, or an
+ * `aibundle` key inside `package.json`). Unknown keys are reported as problems
  * rather than silently ignored, because a typo in a config file is otherwise
  * invisible.
  *
  * @module core/config
  */
 
-import path from 'node:path';
-import { readJson, exists } from '../utils/fs.js';
+import path from "node:path";
+import { readJson, exists } from "../utils/fs.js";
 import type {
   CompressionLevel,
   OutputFormat,
@@ -25,59 +25,91 @@ import type {
   PresetDefinition,
   PresetName,
   ConfigLoadResult,
-} from '../types.js';
-import { COMPRESSION_LEVELS, OUTPUT_FORMATS, PRESET_NAMES } from '../types.js';
+} from "../types.js";
+import { COMPRESSION_LEVELS, OUTPUT_FORMATS, PRESET_NAMES } from "../types.js";
 
 /** Default output basename used for every generated artefact. */
-export const DEFAULT_OUTPUT_NAME = 'project-context';
+export const DEFAULT_OUTPUT_NAME = "project-context";
 
 /** Config file names searched in the project root, in order. */
 export const CONFIG_FILENAMES: readonly string[] = [
-  'ai-project-packer.json',
-  'aipack.config.json',
-  '.aipackrc.json',
-  '.aipackrc',
+  "ai-project-packer.json",
+  "aibundle.config.json",
+  ".aibundlerc.json",
+  ".aibundlerc",
 ];
 
 /** Presets, tuned for the target chat product. */
 export const PRESETS: Readonly<Record<PresetName, PresetDefinition>> = {
   chat: {
-    label: 'General chat',
-    description: 'Balanced Markdown bundle that fits any chat UI and keeps the full tree.',
-    formats: ['markdown'],
-    options: { compression: 'balanced', maxTokens: 0, includeTree: true, includeSummary: true, includeToc: false },
+    label: "General chat",
+    description:
+      "Balanced Markdown bundle that fits any chat UI and keeps the full tree.",
+    formats: ["markdown"],
+    options: {
+      compression: "balanced",
+      maxTokens: 0,
+      includeTree: true,
+      includeSummary: true,
+      includeToc: false,
+    },
   },
   claude: {
-    label: 'Claude (XML)',
-    description: 'XML <documents> wrapper that Claude reads with the least ambiguity.',
-    formats: ['xml', 'markdown'],
-    options: { compression: 'balanced', maxTokens: 0, includeTree: true, includeSummary: true, includeToc: true },
+    label: "Claude (XML)",
+    description:
+      "XML <documents> wrapper that Claude reads with the least ambiguity.",
+    formats: ["xml", "markdown"],
+    options: {
+      compression: "balanced",
+      maxTokens: 0,
+      includeTree: true,
+      includeSummary: true,
+      includeToc: true,
+    },
   },
   openai: {
-    label: 'OpenAI (Markdown)',
-    description: 'Markdown tuned to a 128k window, trimmed to leave room for the answer.',
-    formats: ['markdown'],
-    options: { compression: 'balanced', maxTokens: 110_000, includeTree: true, includeSummary: true, includeToc: true },
+    label: "OpenAI (Markdown)",
+    description:
+      "Markdown tuned to a 128k window, trimmed to leave room for the answer.",
+    formats: ["markdown"],
+    options: {
+      compression: "balanced",
+      maxTokens: 110_000,
+      includeTree: true,
+      includeSummary: true,
+      includeToc: true,
+    },
   },
   gemini: {
-    label: 'Gemini (large window)',
-    description: 'Keeps more of the project, including larger files, for a 1M-token window.',
-    formats: ['markdown', 'xml'],
-    options: { compression: 'light', maxTokens: 700_000, maxFileSize: 4 * 1024 * 1024 },
+    label: "Gemini (large window)",
+    description:
+      "Keeps more of the project, including larger files, for a 1M-token window.",
+    formats: ["markdown", "xml"],
+    options: {
+      compression: "light",
+      maxTokens: 700_000,
+      maxFileSize: 4 * 1024 * 1024,
+    },
   },
   archive: {
-    label: 'Full archive',
-    description: 'Everything, uncompressed, plus JSON, XML and a zip for storage or hand-off.',
-    formats: ['markdown', 'json', 'xml', 'zip'],
-    options: { compression: 'none', maxTokens: 0, maxFileSize: 5 * 1024 * 1024, includeReport: true },
+    label: "Full archive",
+    description:
+      "Everything, uncompressed, plus JSON, XML and a zip for storage or hand-off.",
+    formats: ["markdown", "json", "xml", "zip"],
+    options: {
+      compression: "none",
+      maxTokens: 0,
+      maxFileSize: 5 * 1024 * 1024,
+      includeReport: true,
+    },
   },
 };
 
 /** The built-in defaults every run starts from. */
-export const DEFAULTS: Omit<PackConfig, 'root'> = {
-  preset: 'chat',
-  formats: ['markdown'],
-  outputDir: 'aipack-out',
+export const DEFAULTS: Omit<PackConfig, "root"> = {
+  preset: "chat",
+  formats: ["markdown"],
+  outputDir: "aibundle-out",
   outputName: DEFAULT_OUTPUT_NAME,
   ignore: [],
   ignoreDirs: [],
@@ -85,17 +117,17 @@ export const DEFAULTS: Omit<PackConfig, 'root'> = {
   includeBinary: false,
   maxFileSize: 1.5 * 1024 * 1024,
   maxTokens: 0,
-  compression: 'balanced',
+  compression: "balanced",
   includeTree: true,
   includeSummary: true,
   includeMeta: true,
   includeToc: false,
   includeReport: true,
   lineNumbers: false,
-  fallbackLanguage: 'text',
+  fallbackLanguage: "text",
   writeManifest: true,
-  budgetStrategy: 'priority',
-  verbosity: 'normal',
+  budgetStrategy: "priority",
+  verbosity: "normal",
   color: null,
   respectGitignore: true,
   redactSecrets: true,
@@ -109,40 +141,40 @@ export const DEFAULTS: Omit<PackConfig, 'root'> = {
 export class ConfigError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'ConfigError';
+    this.name = "ConfigError";
   }
 }
 
 /** Keys a config file may set. */
 const CONFIG_KEYS: ReadonlySet<string> = new Set([
-  'preset',
-  'formats',
-  'outputDir',
-  'outputName',
-  'ignore',
-  'ignoreDirs',
-  'includeHidden',
-  'includeBinary',
-  'maxFileSize',
-  'maxTokens',
-  'compression',
-  'includeTree',
-  'includeSummary',
-  'includeMeta',
-  'includeToc',
-  'includeReport',
-  'lineNumbers',
-  'fallbackLanguage',
-  'writeManifest',
-  'budgetStrategy',
-  'verbosity',
-  'color',
-  'respectGitignore',
-  'redactSecrets',
-  'stripComments',
-  'collapseBlankLines',
-  'truncateBodies',
-  'summaryMaxFiles',
+  "preset",
+  "formats",
+  "outputDir",
+  "outputName",
+  "ignore",
+  "ignoreDirs",
+  "includeHidden",
+  "includeBinary",
+  "maxFileSize",
+  "maxTokens",
+  "compression",
+  "includeTree",
+  "includeSummary",
+  "includeMeta",
+  "includeToc",
+  "includeReport",
+  "lineNumbers",
+  "fallbackLanguage",
+  "writeManifest",
+  "budgetStrategy",
+  "verbosity",
+  "color",
+  "respectGitignore",
+  "redactSecrets",
+  "stripComments",
+  "collapseBlankLines",
+  "truncateBodies",
+  "summaryMaxFiles",
 ]);
 
 /**
@@ -168,24 +200,27 @@ export async function resolveConfig(
   } else {
     for (const name of CONFIG_FILENAMES) candidates.push(path.join(root, name));
     if (!options.projectConfigOnly) {
-      const pkgPath = path.join(root, 'package.json');
+      const pkgPath = path.join(root, "package.json");
       if (await exists(pkgPath)) {
-        const pkg = await readJson<{ aipack?: PartialConfig }>(pkgPath, {});
-        if (pkg.aipack && typeof pkg.aipack === 'object') {
-          Object.assign(fromFiles, sanitize(pkg.aipack, `${pkgPath}#aipack`, problems));
-          sources.push(`${pkgPath}#aipack`);
+        const pkg = await readJson<{ aibundle?: PartialConfig }>(pkgPath, {});
+        if (pkg.aibundle && typeof pkg.aibundle === "object") {
+          Object.assign(
+            fromFiles,
+            sanitize(pkg.aibundle, `${pkgPath}#aibundle`, problems),
+          );
+          sources.push(`${pkgPath}#aibundle`);
         }
       }
       // User-level config, if present.
       const home = process.env.HOME;
-      if (home) candidates.push(path.join(home, '.aipackrc.json'));
+      if (home) candidates.push(path.join(home, ".aibundlerc.json"));
     }
   }
 
   for (const candidate of candidates) {
     if (!(await exists(candidate))) continue;
     const data = await readJson<PartialConfig | null>(candidate, null);
-    if (!data || typeof data !== 'object') {
+    if (!data || typeof data !== "object") {
       problems.push(`ignored ${candidate}: not a JSON object`);
       continue;
     }
@@ -193,9 +228,14 @@ export async function resolveConfig(
     sources.push(candidate);
   }
 
-  const cleanedOverrides = sanitize(overrides, 'command line', problems, { tolerateUnknown: true });
+  const cleanedOverrides = sanitize(overrides, "command line", problems, {
+    tolerateUnknown: true,
+  });
 
-  const presetName = pickPreset(cleanedOverrides.preset ?? fromFiles.preset ?? DEFAULTS.preset, problems);
+  const presetName = pickPreset(
+    cleanedOverrides.preset ?? fromFiles.preset ?? DEFAULTS.preset,
+    problems,
+  );
   const preset = PRESETS[presetName];
 
   const merged: PartialConfig = {
@@ -209,17 +249,21 @@ export async function resolveConfig(
 
   const config = finalise(root, merged, problems);
   sources.unshift(`preset:${presetName}`);
-  sources.push('defaults');
+  sources.push("defaults");
 
   return { config, sources, problems };
 }
 
 function pickPreset(value: unknown, problems: string[]): PresetName {
-  if (typeof value === 'string' && (PRESET_NAMES as readonly string[]).includes(value)) {
+  if (
+    typeof value === "string" &&
+    (PRESET_NAMES as readonly string[]).includes(value)
+  ) {
     return value as PresetName;
   }
-  if (value !== undefined) problems.push(`unknown preset "${String(value)}" \u2014 using "chat"`);
-  return 'chat';
+  if (value !== undefined)
+    problems.push(`unknown preset "${String(value)}" \u2014 using "chat"`);
+  return "chat";
 }
 
 /** Drop unknown keys and coerce obvious type errors, recording what happened. */
@@ -233,7 +277,8 @@ function sanitize(
   for (const [key, value] of Object.entries(input)) {
     if (value === undefined) continue;
     if (!CONFIG_KEYS.has(key)) {
-      if (!options.tolerateUnknown) problems.push(`ignored unknown key "${key}" in ${source}`);
+      if (!options.tolerateUnknown)
+        problems.push(`ignored unknown key "${key}" in ${source}`);
       continue;
     }
     out[key] = value;
@@ -242,7 +287,11 @@ function sanitize(
 }
 
 /** Turn the merged partial config into a complete, validated {@link PackConfig}. */
-function finalise(root: string, merged: PartialConfig, problems: string[]): PackConfig {
+function finalise(
+  root: string,
+  merged: PartialConfig,
+  problems: string[],
+): PackConfig {
   const compression = normaliseCompression(merged.compression, problems);
   const formats = normaliseFormats(merged.formats, problems);
 
@@ -265,34 +314,52 @@ function finalise(root: string, merged: PartialConfig, problems: string[]): Pack
     includeToc: bool(merged.includeToc, DEFAULTS.includeToc),
     includeReport: bool(merged.includeReport, DEFAULTS.includeReport),
     lineNumbers: bool(merged.lineNumbers, DEFAULTS.lineNumbers),
-    fallbackLanguage: typeof merged.fallbackLanguage === 'string' && merged.fallbackLanguage ? merged.fallbackLanguage : DEFAULTS.fallbackLanguage,
+    fallbackLanguage:
+      typeof merged.fallbackLanguage === "string" && merged.fallbackLanguage
+        ? merged.fallbackLanguage
+        : DEFAULTS.fallbackLanguage,
     writeManifest: bool(merged.writeManifest, DEFAULTS.writeManifest),
-    budgetStrategy: merged.budgetStrategy === 'spread' ? 'spread' : 'priority',
-    verbosity: merged.verbosity === 'quiet' || merged.verbosity === 'verbose' ? merged.verbosity : 'normal',
-    color: typeof merged.color === 'boolean' ? merged.color : null,
+    budgetStrategy: merged.budgetStrategy === "spread" ? "spread" : "priority",
+    verbosity:
+      merged.verbosity === "quiet" || merged.verbosity === "verbose"
+        ? merged.verbosity
+        : "normal",
+    color: typeof merged.color === "boolean" ? merged.color : null,
     respectGitignore: bool(merged.respectGitignore, DEFAULTS.respectGitignore),
     redactSecrets: bool(merged.redactSecrets, DEFAULTS.redactSecrets),
     stripComments: bool(merged.stripComments, DEFAULTS.stripComments),
-    collapseBlankLines: bool(merged.collapseBlankLines, DEFAULTS.collapseBlankLines),
+    collapseBlankLines: bool(
+      merged.collapseBlankLines,
+      DEFAULTS.collapseBlankLines,
+    ),
     truncateBodies: bool(merged.truncateBodies, DEFAULTS.truncateBodies),
     summaryMaxFiles: positive(merged.summaryMaxFiles, DEFAULTS.summaryMaxFiles),
   };
 
   if (config.outputDir === root) {
-    throw new ConfigError('output directory cannot be the project root');
+    throw new ConfigError("output directory cannot be the project root");
   }
-  if (config.formats.length === 0) config.formats = ['markdown'];
+  if (config.formats.length === 0) config.formats = ["markdown"];
   if (config.maxTokens > 0 && !Number.isFinite(config.maxTokens)) {
-    throw new ConfigError('maxTokens must be a finite number');
+    throw new ConfigError("maxTokens must be a finite number");
   }
   return config;
 }
 
-function normaliseCompression(value: unknown, problems: string[]): CompressionLevel {
-  if (typeof value === 'string' && (COMPRESSION_LEVELS as readonly string[]).includes(value)) {
+function normaliseCompression(
+  value: unknown,
+  problems: string[],
+): CompressionLevel {
+  if (
+    typeof value === "string" &&
+    (COMPRESSION_LEVELS as readonly string[]).includes(value)
+  ) {
     return value as CompressionLevel;
   }
-  if (value !== undefined) problems.push(`unknown compression level "${String(value)}" \u2014 using "balanced"`);
+  if (value !== undefined)
+    problems.push(
+      `unknown compression level "${String(value)}" \u2014 using "balanced"`,
+    );
   return DEFAULTS.compression;
 }
 
@@ -301,7 +368,8 @@ function normaliseFormats(value: unknown, problems: string[]): OutputFormat[] {
   const list = toArray(value as string | string[]);
   const valid: OutputFormat[] = [];
   for (const item of list) {
-    if ((OUTPUT_FORMATS as readonly string[]).includes(item)) valid.push(item as OutputFormat);
+    if ((OUTPUT_FORMATS as readonly string[]).includes(item))
+      valid.push(item as OutputFormat);
     else problems.push(`unknown format "${item}" \u2014 ignored`);
   }
   const unique = [...new Set(valid)];
@@ -309,20 +377,24 @@ function normaliseFormats(value: unknown, problems: string[]): OutputFormat[] {
 }
 
 function normaliseName(value: string): string {
-  const cleaned = value.replace(/[\\/]/g, '-').replace(/[^A-Za-z0-9._-]/g, '-').replace(/^-+|-+$/g, '');
+  const cleaned = value
+    .replace(/[\\/]/g, "-")
+    .replace(/[^A-Za-z0-9._-]/g, "-")
+    .replace(/^-+|-+$/g, "");
   return cleaned || DEFAULT_OUTPUT_NAME;
 }
 
 function toArray(value: unknown): string[] {
   if (value == null) return [];
-  if (Array.isArray(value)) return value.map((item) => String(item)).filter(Boolean);
+  if (Array.isArray(value))
+    return value.map((item) => String(item)).filter(Boolean);
   return [String(value)];
 }
 
 function bool(value: unknown, fallback: boolean): boolean {
-  if (typeof value === 'boolean') return value;
-  if (value === 'true') return true;
-  if (value === 'false') return false;
+  if (typeof value === "boolean") return value;
+  if (value === "true") return true;
+  if (value === "false") return false;
   return fallback;
 }
 
@@ -341,7 +413,7 @@ export function presetHelp(): string {
   return PRESET_NAMES.map((name) => {
     const preset = PRESETS[name];
     return `  ${name.padEnd(9)} ${preset.description}`;
-  }).join('\n');
+  }).join("\n");
 }
 
 /** A compact, human-readable config summary for `--verbose`. */
@@ -349,13 +421,13 @@ export function describeConfig(config: PackConfig): string {
   return [
     `root=${config.root}`,
     `preset=${config.preset}`,
-    `formats=${config.formats.join(',')}`,
+    `formats=${config.formats.join(",")}`,
     `compression=${config.compression}`,
-    `maxTokens=${config.maxTokens || 'unlimited'}`,
+    `maxTokens=${config.maxTokens || "unlimited"}`,
     `maxFileSize=${config.maxFileSize}`,
     `hidden=${config.includeHidden}`,
     `gitignore=${config.respectGitignore}`,
     `redact=${config.redactSecrets}`,
-    `output=${path.relative(config.root, config.outputDir) || '.'}`,
-  ].join('  ');
+    `output=${path.relative(config.root, config.outputDir) || "."}`,
+  ].join("  ");
 }

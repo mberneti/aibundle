@@ -10,16 +10,18 @@
  * a raw MODULE_NOT_FOUND stack trace.
  */
 
-const entry = '../dist/src/cli/main.js';
+const entry = "../dist/src/cli/main.js";
 
 import(new URL(entry, import.meta.url).href)
   .then((mod) => mod.main(process.argv.slice(2)))
   .catch((error) => {
-    if (error && error.code === 'ERR_MODULE_NOT_FOUND') {
-      console.error('aipack: compiled output not found.');
-      console.error('Run `npm run build` first (or `npm install`, which builds automatically).');
+    if (error && error.code === "ERR_MODULE_NOT_FOUND") {
+      console.error("aibundle: compiled output not found.");
+      console.error(
+        "Run `npm run build` first (or `npm install`, which builds automatically).",
+      );
     } else {
-      console.error('aipack: unexpected failure');
+      console.error("aibundle: unexpected failure");
       console.error(error);
     }
     process.exitCode = 1;

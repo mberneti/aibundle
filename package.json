@@ -1,6 +1,6 @@
 {
   "name": "aibundle",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "Smart, extensible CLI that turns any code project into token-optimized context bundles for AI chats. Written in TypeScript.",
   "type": "module",
   "license": "MIT",

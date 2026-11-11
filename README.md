@@ -4,9 +4,9 @@ Turns any code project into token-optimized context bundles you can paste into a
 Written in TypeScript, zero runtime dependencies, works for TypeScript/React first and gives a
 sensible output for any other language.
 
-[![CI](https://github.com/OWNER/ai-project-packer/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/ai-project-packer/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/ai-project-packer.svg)](https://www.npmjs.com/package/ai-project-packer)
-[![license](https://img.shields.io/npm/l/ai-project-packer.svg)](./LICENSE)
+[![CI](https://github.com/OWNER/aibundle/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/aibundle/actions/workflows/ci.yml)
+[![npm](https://img.shields.io/npm/v/aibundle.svg)](https://www.npmjs.com/package/aibundle)
+[![license](https://img.shields.io/npm/l/aibundle.svg)](./LICENSE)
 
 ## Why
 
@@ -18,8 +18,8 @@ best.
 ## Run it without installing
 
 ```bash
-npx ai-project-packer --help          # once published
-npx ai-project-packer . --preset claude -o .aibundle
+npx aibundle --help          # once published
+npx aibundle . --preset claude -o .aibundle
 ```
 
 `npx` downloads the package on demand and runs the `aibundle` binary; nothing is added to your
@@ -29,7 +29,7 @@ dependencies.
 ## Install
 
 ```bash
-npm install -g ai-project-packer     # gives you the `aibundle` command
+npm install -g aibundle     # gives you the `aibundle` command
 # or, from a clone:
 npm install && npm run build && npm link
 ```
@@ -110,7 +110,7 @@ A `.aibundlerc.json` in the project root is merged with the built-in defaults an
 ## Library use
 
 ```ts
-import { packProject, buildBundle, renderReport } from "ai-project-packer";
+import { packProject, buildBundle, renderReport } from "aibundle";
 
 const bundle = await packProject({ root: process.cwd(), preset: "claude" });
 console.log(bundle.totals.files, "files ·", bundle.totals.tokens, "tokens");

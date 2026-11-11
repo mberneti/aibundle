@@ -1,4 +1,4 @@
-# Extending ai-project-packer (TypeScript)
+# Extending aibundle (TypeScript)
 
 The packer is built from three small, replaceable layers. Each is registered in a
 registry, so extending it means adding a module, not editing the pipeline.
@@ -44,7 +44,9 @@ export const myFormat: Renderer = {
   id: "myformat",
   extension: ".myf",
   render(bundle, ctx) {
-    return bundle.files.map((f) => `>>> ${f.relPath}\n${f.content}`).join("\n\n");
+    return bundle.files
+      .map((f) => `>>> ${f.relPath}\n${f.content}`)
+      .join("\n\n");
   },
 };
 ```

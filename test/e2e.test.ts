@@ -204,7 +204,7 @@ describe("renderers", () => {
       files: Array<{ path: string; content: string }>;
       sections: Array<{ id: string }>;
     };
-    assert.equal(parsed.schema, "ai-project-packer/bundle@2");
+    assert.equal(parsed.schema, "aibundle/bundle@2");
     assert.equal(parsed.totals.included, outcome.bundle.totals.included);
     assert.ok(parsed.files.some((file) => file.path === "src/App.tsx"));
     assert.ok(parsed.sections.some((section) => section.id === "summary"));
@@ -279,7 +279,7 @@ describe("written artefacts", () => {
       path.join(root, "out", "REPORT.md"),
       "utf8",
     );
-    assert.match(report, /ai-project-packer run report/);
+    assert.match(report, /aibundle run report/);
     assert.match(report, /Estimated tokens/);
     assert.match(report, /Secrets redacted/);
     assert.match(report, /\| File \| Kind \|/);

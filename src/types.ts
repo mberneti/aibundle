@@ -1,5 +1,5 @@
 /**
- * Central type contracts for ai-project-packer.
+ * Central type contracts for aibundle.
  *
  * Everything else imports its shapes from here, so this file is the fastest way
  * to understand the data flow:
@@ -21,59 +21,72 @@
 /* -------------------------------------------------------------------------- */
 
 /** Bundle formats the CLI can emit. */
-export type OutputFormat = 'markdown' | 'xml' | 'json' | 'plain' | 'repomix' | 'zip';
+export type OutputFormat =
+  | "markdown"
+  | "xml"
+  | "json"
+  | "plain"
+  | "repomix"
+  | "zip";
 
 /** All output formats, in the order the CLI lists them. */
 export const OUTPUT_FORMATS: readonly OutputFormat[] = [
-  'markdown',
-  'xml',
-  'json',
-  'plain',
-  'repomix',
-  'zip',
+  "markdown",
+  "xml",
+  "json",
+  "plain",
+  "repomix",
+  "zip",
 ] as const;
 
 /** How hard the compressor works on each file. */
-export type CompressionLevel = 'none' | 'light' | 'balanced' | 'aggressive';
+export type CompressionLevel = "none" | "light" | "balanced" | "aggressive";
 
 /** All compression levels, cheapest first. */
 export const COMPRESSION_LEVELS: readonly CompressionLevel[] = [
-  'none',
-  'light',
-  'balanced',
-  'aggressive',
+  "none",
+  "light",
+  "balanced",
+  "aggressive",
 ] as const;
 
 /** Tuning bundles for common chat targets. */
-export type PresetName = 'chat' | 'claude' | 'openai' | 'gemini' | 'archive';
+export type PresetName = "chat" | "claude" | "openai" | "gemini" | "archive";
 
 /** All preset names. */
 export const PRESET_NAMES: readonly PresetName[] = [
-  'chat',
-  'claude',
-  'openai',
-  'gemini',
-  'archive',
+  "chat",
+  "claude",
+  "openai",
+  "gemini",
+  "archive",
 ] as const;
 
 /** Coarse classification of a file, used for ranking and rendering order. */
-export type FileKind = 'source' | 'config' | 'doc' | 'test' | 'style' | 'asset' | 'other';
+export type FileKind =
+  | "source"
+  | "config"
+  | "doc"
+  | "test"
+  | "style"
+  | "asset"
+  | "other";
 
 /** Log verbosity. */
-export type Verbosity = 'quiet' | 'normal' | 'verbose';
+export type Verbosity = "quiet" | "normal" | "verbose";
 
 /** Why a file never made it into the bundle. */
 export type DropReason =
-  | 'ignored'
-  | 'binary'
-  | 'too-large'
-  | 'low-signal'
-  | 'budget'
-  | 'empty'
-  | 'duplicate';
+  | "ignored"
+  | "binary"
+  | "too-large"
+  | "low-signal"
+  | "budget"
+  | "empty"
+  | "duplicate";
 
 /** How the compressor picks what to keep when a token budget is in force. */
-export type BudgetStrategy = 'priority' | 'spread';
+export type BudgetStrategy = "priority" | "spread";
 
 /* -------------------------------------------------------------------------- */
 /* Languages                                                                  */
@@ -409,7 +422,13 @@ export interface PackOutcome {
 /* -------------------------------------------------------------------------- */
 
 /** Pipeline phase names. */
-export type Phase = 'discover' | 'read' | 'compress' | 'analyze' | 'render' | 'write';
+export type Phase =
+  | "discover"
+  | "read"
+  | "compress"
+  | "analyze"
+  | "render"
+  | "write";
 
 /** A progress notification; the CLI turns these into a live status line. */
 export interface ProgressEvent {

@@ -83,7 +83,7 @@ class ProgressLine {
 /** The `--help` screen. */
 export function usage(): string {
   const lines: string[] = [];
-  lines.push(`${color.bold("ai-project-packer")} ${color.dim(`v${VERSION}`)}`);
+  lines.push(`${color.bold("aibundle")} ${color.dim(`v${VERSION}`)}`);
   lines.push(
     "Turn any code project into token-optimised, compressed context bundles for AI chats.",
   );

@@ -1,6 +1,6 @@
-# Publishing ai-project-packer
+# Publishing aibundle
 
-Three things have to line up before `npx ai-project-packer` works for anyone:
+Three things have to line up before `npx aibundle` works for anyone:
 
 1. the code is on GitHub,
 2. the package `files` list actually ships the compiled `dist/` and the `bin` shim,
@@ -18,13 +18,13 @@ From the project root:
 ```bash
 git init
 git add .
-git commit -m "feat: ai-project-packer 2.0.0 (TypeScript)"
+git commit -m "feat: aibundle 2.0.0 (TypeScript)"
 ```
 
 Add your remote and push:
 
 ```bash
-git remote add origin git@github.com:OWNER/ai-project-packer.git
+git remote add origin git@github.com:OWNER/aibundle.git
 git branch -M main
 git push -u origin main
 ```
@@ -33,9 +33,9 @@ Replace `OWNER` with your GitHub user or organisation. Then edit these three fie
 `package.json` so the npm page links back correctly:
 
 ```json
-"repository": "git+https://github.com/OWNER/ai-project-packer.git",
-"homepage": "https://github.com/OWNER/ai-project-packer#readme",
-"bugs": "https://github.com/OWNER/ai-project-packer/issues"
+"repository": "git+https://github.com/OWNER/aibundle.git",
+"homepage": "https://github.com/OWNER/aibundle#readme",
+"bugs": "https://github.com/OWNER/aibundle/issues"
 ```
 
 The workflows in `.github/workflows/` start running on the first push:
@@ -56,7 +56,7 @@ npm whoami                     # confirms you are authenticated
 Check the name is still free — package names are global:
 
 ```bash
-npm view ai-project-packer version
+npm view aibundle version
 ```
 
 If it is taken, rename the package (`"name"` in `package.json`); the command users type is the
@@ -113,8 +113,8 @@ export change is `major`, a new flag, format or analyzer is `minor`, everything 
 After the registry has the version (give it a minute):
 
 ```bash
-npx ai-project-packer@latest --help
-npx ai-project-packer@latest . --preset chat -o .aibundle
+npx aibundle@latest --help
+npx aibundle@latest . --preset chat -o .aibundle
 ```
 
 `npx` resolves the package, installs it in a temporary cache and runs the `aibundle` binary, because
@@ -128,18 +128,18 @@ Three things break that wiring, so check them if `npx` fails:
 
 - `bin/aibundle.js` must be executable and start with `#!/usr/bin/env node` (it does);
 - `dist/` must be in the `files` array, otherwise the shim has nothing to load;
-- the version you asked for must actually be on the registry — `npm view ai-project-packer versions`.
+- the version you asked for must actually be on the registry — `npm view aibundle versions`.
 
 ## Troubleshooting
 
-| Symptom                               | Cause                                 | Fix                                                                |
-| ------------------------------------- | ------------------------------------- | ------------------------------------------------------------------ |
-| `E403` on publish                     | name taken, or token lacks permission | rename, or recreate an Automation token                            |
-| `EPUBLISHCONFLICT`                    | the version already exists            | bump `version` and tag again                                       |
-| `npx` runs an old build               | npm cache                             | `npx --yes ai-project-packer@latest`, or `npm cache clean --force` |
-| `aibundle: compiled output not found` | `dist/` missing from the package      | ensure `dist` is in `files` and run `npm run build`                |
-| CI publish step skipped               | tag pushed but no `NPM_TOKEN`         | add the secret, re-run the workflow                                |
-| `403 You must verify your email`      | new npm account                       | verify the address from the email npm sent                         |
+| Symptom                               | Cause                                 | Fix                                                       |
+| ------------------------------------- | ------------------------------------- | --------------------------------------------------------- |
+| `E403` on publish                     | name taken, or token lacks permission | rename, or recreate an Automation token                   |
+| `EPUBLISHCONFLICT`                    | the version already exists            | bump `version` and tag again                              |
+| `npx` runs an old build               | npm cache                             | `npx --yes aibundle@latest`, or `npm cache clean --force` |
+| `aibundle: compiled output not found` | `dist/` missing from the package      | ensure `dist` is in `files` and run `npm run build`       |
+| CI publish step skipped               | tag pushed but no `NPM_TOKEN`         | add the secret, re-run the workflow                       |
+| `403 You must verify your email`      | new npm account                       | verify the address from the email npm sent                |
 
 ## Release checklist
 
@@ -147,5 +147,5 @@ Three things break that wiring, so check them if `npx` fails:
 - [ ] `CHANGELOG`/commit messages describe the change
 - [ ] `version` bumped and consistent with the tag you will push
 - [ ] `node scripts/publish.mjs --dry-run` shows the expected file list
-- [ ] published, then `npx ai-project-packer@latest --help` verified on a clean machine
+- [ ] published, then `npx aibundle@latest --help` verified on a clean machine
 - [ ] tag pushed to GitHub

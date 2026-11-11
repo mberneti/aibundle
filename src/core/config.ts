@@ -7,7 +7,7 @@
  *   DEFAULTS  <  preset  <  project config file  <  user config file  <  CLI flags
  * ```
  *
- * A config file is JSON (`ai-project-packer.json`, `.aibundlerc.json`, or an
+ * A config file is JSON (`aibundle.json`, `.aibundlerc.json`, or an
  * `aibundle` key inside `package.json`). Unknown keys are reported as problems
  * rather than silently ignored, because a typo in a config file is otherwise
  * invisible.
@@ -33,7 +33,7 @@ export const DEFAULT_OUTPUT_NAME = "project-context";
 
 /** Config file names searched in the project root, in order. */
 export const CONFIG_FILENAMES: readonly string[] = [
-  "ai-project-packer.json",
+  "aibundle.json",
   "aibundle.config.json",
   ".aibundlerc.json",
   ".aibundlerc",
